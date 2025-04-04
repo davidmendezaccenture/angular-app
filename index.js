@@ -17,7 +17,6 @@ app.get('/api/pirates/:id', (req, res) => {
   }
 })
 
-
 function getPirate(id) {
   const pirates = [
     { id: 1, name: 'Blackbeard', active: '1245-12-12', country: 'USA'},
