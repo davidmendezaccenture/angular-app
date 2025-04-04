@@ -14,7 +14,7 @@ steps:
       - '--image'
       - 'gcr.io/$PROJECT_ID/angular-app'  # Aquí se usará la imagen construida
       - '--region'
-      - 'us-central1'  # Región donde quieres desplegar
+      - 'europe-southwest1'  # Región donde quieres desplegar
       - '--platform'
       - 'managed'  # Para usar la opción totalmente administrada de Cloud Run
       - '--allow-unauthenticated'  # Permite acceso sin autenticación (ajústalo según necesidad)
