@@ -1,0 +1,32 @@
+# cloudbuild.yaml
+steps:
+  # Paso 1: Usa el buildpack para construir la aplicación
+  - name: 'gcr.io/buildpacks/builder:v1'
+    args:
+      - '/workspace'  # Directorio donde está el código fuente
+
+  # Paso 2: Desplegar a Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'angular-app'  # Nombre del servicio de Cloud Run
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/angular-app'  # Aquí se usará la imagen construida
+      - '--region'
+      - 'us-central1'  # Región donde quieres desplegar
+      - '--platform'
+      - 'managed'  # Para usar la opción totalmente administrada de Cloud Run
+      - '--allow-unauthenticated'  # Permite acceso sin autenticación (ajústalo según necesidad)
+
+# Configuración opcional de logs (si deseas usar un bucket de logs)
+options:
+  logging: CLOUD_LOGGING_ONLY  # Los registros serán enviados a Google Cloud Logging
+
+# Si deseas usar un bucket en lugar de Google Cloud Logging, puedes usar esto:
+# options:
+#   logging: REGIONAL_USER_OWNED_BUCKET
+#   default_logs_bucket_behavior: true
+#   logs_bucket: gs://your-log-bucket-name  # Especifica el nombre de tu bucket
+
+timeout: '1200s'  # Tiempo de espera de construcción, puedes ajustarlo
