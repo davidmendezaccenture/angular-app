@@ -1,25 +1,27 @@
 # cloudbuild.yaml
 steps:
-  # Paso 1: Usa el buildpack para construir la aplicación
-  - name: 'gcr.io/buildpacks/builder:v1'
-    args:
-      - '/workspace/angular-app'  # Directorio donde está el código fuente
+# Build the image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'europe-southwest1-docker.pkg.dev/iac-project-449813/cloud-run-source-deploy/pirate-service:$COMMIT_SHA', '.']
+# Push the image to Artifact Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'europe-southwest1-docker.pkg.dev/iac-project-449813/cloud-run-source-deploy/pirate-service:$COMMIT_SHA']
+# Deploy image to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+    - 'run'
+    - 'deploy'
+    - 'pirate-service'
+    - '--image'
+    - 'europe-southwest1-docker.pkg.dev/iac-project-449813/cloud-run-source-deploy/pirate-service:$COMMIT_SHA'
+    - '--region'
+    - 'europe-soutwest1'
+    - '--allow-unauthenticated'  # Permite acceso sin autenticación (ajústalo según necesidad)
 
-  # Paso 2: Desplegar a Cloud Run
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args:
-      - 'run'
-      - 'deploy'
-      - 'angular-app'  # Nombre del servicio de Cloud Run
-      - '--image'
-      - 'gcr.io/$PROJECT_ID/angular-app'  # Aquí se usará la imagen construida
-      - '--region'
-      - 'europe-southwest1'  # Región donde quieres desplegar
-      - '--platform'
-      - 'managed'  # Para usar la opción totalmente administrada de Cloud Run
-      - '--allow-unauthenticated'  # Permite acceso sin autenticación (ajústalo según necesidad)
+images:
+- 'europe-southwest1-docker.pkg.dev/iac-project-449813/cloud-run-source-deploy/pirate-service:$COMMIT_SHA'
 
-# Configuración opcional de logs (si deseas usar un bucket de logs)
 options:
   logging: CLOUD_LOGGING_ONLY  # Los registros serán enviados a Google Cloud Logging
 
