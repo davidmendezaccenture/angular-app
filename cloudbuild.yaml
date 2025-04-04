@@ -1,34 +1,26 @@
-# cloudbuild.yaml
 steps:
-# Build the image
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'europe-southwest1-docker.pkg.dev/iac-project-449813/cloud-run-source-deploy/pirate-service:$COMMIT_SHA', '.']
-# Push the image to Artifact Registry
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'europe-southwest1-docker.pkg.dev/iac-project-449813/cloud-run-source-deploy/pirate-service:$COMMIT_SHA']
-# Deploy image to Cloud Run
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: gcloud
-  args:
-    - 'run'
-    - 'deploy'
-    - 'pirate-service'
-    - '--image'
-    - 'europe-southwest1-docker.pkg.dev/iac-project-449813/cloud-run-source-deploy/pirate-service:$COMMIT_SHA'
-    - '--region'
-    - 'europe-soutwest1'
-    - '--allow-unauthenticated'  # Permite acceso sin autenticación (ajústalo según necesidad)
-
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - '-t'
+      - '$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPO/$_SERVICE_NAME:$COMMIT_SHA'
+      - .
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - '$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPO/$_SERVICE_NAME:$COMMIT_SHA'
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    args:
+      - run
+      - deploy
+      - $_SERVICE_NAME
+      - '--image'
+      - '$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPO/$_SERVICE_NAME:$COMMIT_SHA'
+      - '--region'
+      - $_DEPLOY_REGION
+      - '--platform'
+      - $_PLATFORM
+    entrypoint: gcloud
+timeout: 1200s
 images:
-- 'europe-southwest1-docker.pkg.dev/iac-project-449813/cloud-run-source-deploy/pirate-service:$COMMIT_SHA'
-
-options:
-  logging: CLOUD_LOGGING_ONLY  # Los registros serán enviados a Google Cloud Logging
-
-# Si deseas usar un bucket en lugar de Google Cloud Logging, puedes usar esto:
-# options:
-#   logging: REGIONAL_USER_OWNED_BUCKET
-#   default_logs_bucket_behavior: true
-#   logs_bucket: gs://your-log-bucket-name  # Especifica el nombre de tu bucket
-
-timeout: '1200s'  # Tiempo de espera de construcción, puedes ajustarlo
+  - '$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPO/$_SERVICE_NAME:$COMMIT_SHA'
