@@ -12,7 +12,7 @@ RUN npm install
 COPY angular-app/ ./
 
 # Build the Angular app
-RUN npm run build --prod
+RUN npm run build
 
 # Step 2: Setup Node.js Backend
 FROM node:18
