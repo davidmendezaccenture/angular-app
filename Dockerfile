@@ -4,7 +4,7 @@ FROM node:18 AS builder
 WORKDIR /app
 
 # Copiar dependencias
-COPY angular-app/package*.json ./angular-app/
+COPY angular-app/package*.json angular-app/
 WORKDIR /app/angular-app
 RUN npm install
 
