@@ -1,36 +1,30 @@
-# Step 1: Build the Angular app
-FROM node:18 AS build
+# Etapa 1: Construir Angular
+FROM node:18 AS builder
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy package.json and install dependencies
-COPY package*.json ./
+# Copiar dependencias
+COPY angular-app/package*.json ./angular-app/
+WORKDIR /app/angular-app
 RUN npm install
 
-# Copy the rest of the Angular project files
+# Copiar el resto del código Angular y compilar
 COPY angular-app/ ./
-
-# Build the Angular app
 RUN npm run build
 
-# Step 2: Setup Node.js Backend
+# Etapa 2: Backend con Node.js
 FROM node:18
 
-# Set the working directory for the backend
 WORKDIR /app
 
-# Copy the Node.js application (index.js and package.json)
-COPY index.js package.json ./
-
-# Install dependencies for the Node.js backend
+# Copiar backend
+COPY package*.json ./
+COPY index.js ./
 RUN npm install
 
-# Copy the built Angular app from the previous stage
-COPY --from=build /app/dist/angular-app /app/dist/angular-app
+# Copiar el frontend compilado
+COPY --from=builder /app/angular-app/dist/angular-app ./dist/angular-app
 
-# Expose the port
 EXPOSE 8080
 
-# Start the Node.js server
 CMD ["node", "index.js"]
