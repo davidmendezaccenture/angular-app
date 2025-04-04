@@ -1,11 +1,11 @@
 # Etapa 1: Construir Angular
 FROM node:18 AS builder
 
-WORKDIR /app
+WORKDIR /app/angular-app
 
 # Copiar dependencias
-COPY angular-app/package*.json angular-app/
-WORKDIR /app/angular-app
+COPY angular-app/package*.json ./
+
 RUN npm install
 
 # Copiar el resto del código Angular y compilar
