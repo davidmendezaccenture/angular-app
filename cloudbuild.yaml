@@ -3,7 +3,7 @@ steps:
   # Paso 1: Usa el buildpack para construir la aplicación
   - name: 'gcr.io/buildpacks/builder:v1'
     args:
-      - '/workspace'  # Directorio donde está el código fuente
+      - '.'  # Directorio donde está el código fuente
 
   # Paso 2: Desplegar a Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
