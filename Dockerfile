@@ -1,30 +1,21 @@
-# Etapa 1: Construir Angular
-FROM node:18 AS builder
-
-WORKDIR /app/angular-app
-
-# Copiar dependencias
-COPY angular-app/package*.json ./
-
-RUN npm install
-
-# Copiar el resto del código Angular y compilar
-COPY angular-app/ ./
-RUN npm run build
-
-# Etapa 2: Backend con Node.js
-FROM node:18
-
+FROM mcr.microsoft.com/dotnet/aspnet:7.0.10 AS base
 WORKDIR /app
-
-# Copiar backend
-COPY package*.json ./
-COPY index.js ./
-RUN npm install
-
-# Copiar el frontend compilado
-COPY --from=builder /app/angular-app/dist/angular-app ./dist/angular-app
-
 EXPOSE 8080
+EXPOSE 443
 
-CMD ["node", "index.js"]
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+WORKDIR /src
+COPY ["DemoApi/DemoApi.csproj", "DemoApi/"]
+RUN dotnet restore "DemoApi/DemoApi.csproj"
+COPY . .
+WORKDIR "/src/DemoApi"
+RUN dotnet build "DemoApi.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "DemoApi.csproj" -c Release -o /app/publish
+
+FROM base AS final
+ENV ASPNETCORE_URLS=http://+:8080
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "DemoApi.dll"]
